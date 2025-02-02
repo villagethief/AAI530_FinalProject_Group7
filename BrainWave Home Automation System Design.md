@@ -33,8 +33,11 @@ Functions:
 3. Networking
 
 // ... sensor layer ...
+
 [BLE 5.0] → [WiFi 6 Mesh] → [MQTT over TLS 1.3]  
+
 // ... cloud layer ...
+
 → [AWS IoT Core] → [Kinesis Data Streams]
 
 Protocol Stack:
