@@ -1,4 +1,5 @@
 ## Written and copyright by Mohit Agarwal
+## Edited by Joel Dievendorf and Alyona Kosobokova
 ## Georgia Institute of Technology
 ## Email: magarwal37@gatech.edu
 
@@ -8,7 +9,7 @@ from scipy.signal import *
 import csv
 import matplotlib.pyplot as plt
 
-#Options to read: 'EEG-IO', 'EEG-VV', 'EEG-VR', 'EEG-MB'
+#Options to read: 'EEG-IO', 'EEG-VV', 'EEG-VR'
 data_folder = 'EEG-VR' 
 
 # Parameters and bandpass filtering
@@ -37,7 +38,7 @@ def decode_stim(data_path, file_stim):
             elif row[0]=="blinks":
                 #check that n_corrupt is 0
                 if not n_corrupt==0:
-                    print "!Error in parsing"
+                    print("!Error in parsing")
             else:
                 blinks.append([float(row[0]), int(row[1])])
     blinks = np.array(blinks)
@@ -49,16 +50,21 @@ file_idx = 0
 list_of_files = [f for f in os.listdir(data_folder) if os.path.isfile(os.path.join(data_folder, f)) and '_data' in f]
 file_sig = list_of_files[file_idx]
 file_stim = list_of_files[file_idx].replace('_data','_labels')
-print "Reading: ", file_sig, file_stim
+print("Reading: ", file_sig, file_stim)
 
-# Loading data
-if data_folder is 'EEG-IO' or data_folder is 'EEG-MB':
-	data_sig = np.loadtxt(open(os.path.join(data_folder,file_sig), "rb"), delimiter=";", skiprows=1, usecols=(0,1,2))
-elif data_folder is 'EEG-VR' or data_folder is 'EEG-VV':
-	data_sig = np.loadtxt(open(os.path.join(data_folder,file_sig), "rb"), delimiter=",", skiprows=5, usecols=(0,1,2))
-	data_sig = data_sig[0:(int(200*fs)+1),:]
-	data_sig = data_sig[:,0:3]
-	data_sig[:,0] = np.array(range(0,len(data_sig)))/fs
+# Data loading section
+if data_folder == 'EEG-IO':
+    data_sig = np.loadtxt(open(os.path.join(data_folder,file_sig), "rb"), 
+                        delimiter=";", skiprows=1, usecols=(0,1,2))
+elif data_folder in ['EEG-VR', 'EEG-VV']:
+    data_sig = np.loadtxt(open(os.path.join(data_folder,file_sig), "rb"), 
+                        delimiter=",", skiprows=5, usecols=(0,1,2))
+    # Only apply truncation for VR dataset
+    if data_folder == 'EEG-VR':
+        data_sig = data_sig[0:(int(200*fs)+1),:]
+    data_sig = data_sig[:,0:3]
+    data_sig[:,0] = np.array(range(0,len(data_sig)))/fs
+
 
 # Loading Stimulations
 interval_corrupt, groundtruth_blinks = decode_stim(data_folder, file_stim)
